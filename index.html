@@ -2,366 +2,531 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>TAL - Monster Mode 🏎️</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  -webkit-user-select:none;user-select:none}
+html,body{height:100%;overflow:hidden}
 body{
-  min-height:100vh;
-  background:
-    radial-gradient(900px 500px at 15% -5%, rgba(0,140,255,.20), transparent 60%),
-    radial-gradient(700px 500px at 90% 8%, rgba(255,30,60,.16), transparent 60%),
-    linear-gradient(160deg,#05070f,#0b1022 45%,#070a14);
-  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
-  color:#fff;padding:24px 14px 60px;overflow-x:hidden;
+  background:radial-gradient(800px 500px at 20% 0%,rgba(0,140,255,.18),transparent 60%),
+             radial-gradient(700px 500px at 90% 10%,rgba(255,30,60,.14),transparent 60%),
+             linear-gradient(165deg,#05070f,#0b1022 45%,#070a14);
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:#fff;
+  display:flex;flex-direction:column;align-items:center;
 }
-.road{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.25;overflow:hidden}
-.stripe{position:absolute;top:-30vh;width:3px;height:22vh;background:linear-gradient(transparent,#7fd4ff,transparent);animation:zoom linear infinite}
-@keyframes zoom{to{transform:translateY(150vh)}}
-.wrap{position:relative;z-index:1;max-width:620px;margin:0 auto}
+#app{width:100%;max-width:520px;height:100%;display:flex;flex-direction:column;padding:12px 14px 18px}
 
-.hero{text-align:center;padding:28px 20px 26px;border-radius:26px;
-  background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
-  border:1px solid rgba(255,255,255,.14);box-shadow:0 24px 70px rgba(0,0,0,.6);animation:in .7s ease-out}
-@keyframes in{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:none}}
-.hero .emo{font-size:3em;animation:rev 1.8s ease-in-out infinite}
-@keyframes rev{0%,100%{transform:translateX(-8px) rotate(-2deg)}50%{transform:translateX(8px) rotate(2deg)}}
-h1{font-size:3.6em;font-weight:900;letter-spacing:1px;line-height:1;margin:6px 0 8px;
+/* ---- top bar ---- */
+#top{flex:none;display:flex;align-items:center;gap:10px;padding:8px 4px 12px}
+#dots{flex:1;display:flex;gap:6px}
+.dot{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.14)}
+.dot.on{background:linear-gradient(90deg,#00d4ff,#7cf6c4)}
+.dot.cur{background:#ffd34d;box-shadow:0 0 10px rgba(255,211,77,.7)}
+#score{font-weight:900;color:#ffd34d;font-size:1.05em;white-space:nowrap}
+
+/* ---- stage ---- */
+#stage{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;position:relative}
+.screen{display:flex;flex-direction:column;justify-content:center;height:100%;animation:pop .35s ease-out}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+
+h1{font-size:3.6em;font-weight:900;letter-spacing:2px;line-height:1;text-align:center;
   background:linear-gradient(120deg,#00d4ff,#fff 45%,#ff4d6d);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.sub{color:#a9c6e0;font-size:1.08em;line-height:1.65}
-.tag{display:inline-block;margin-top:14px;padding:9px 20px;border-radius:999px;font-weight:800;
-  background:rgba(0,212,255,.14);border:1px solid rgba(0,212,255,.4);color:#8fe6ff;font-size:.98em}
+h2{font-size:1.6em;font-weight:900;text-align:center;line-height:1.25;margin-bottom:6px}
+.lead{text-align:center;color:#a9c6e0;font-size:1.1em;line-height:1.55}
+.big{font-size:3.2em;font-weight:900;text-align:center;line-height:1;
+  background:linear-gradient(120deg,#00d4ff,#fff,#ffd34d);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.mini{text-align:center;color:#8fa8bf;font-size:.95em;margin-top:6px}
 
-.scorebar{position:sticky;top:10px;z-index:5;margin:18px 0 6px;display:flex;align-items:center;gap:12px;
-  padding:12px 16px;border-radius:18px;background:rgba(8,14,28,.88);backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 30px rgba(0,0,0,.5)}
-.gauge{flex:1;height:12px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
-.gauge i{display:block;height:100%;width:0;border-radius:99px;
-  background:linear-gradient(90deg,#00d4ff,#7cf6c4,#ffd34d,#ff4d6d);transition:width .5s cubic-bezier(.2,.9,.2,1)}
-.pts{font-weight:900;font-size:1.15em;color:#ffd34d;white-space:nowrap}
+/* buttons */
+.btn{display:block;width:100%;margin-top:16px;padding:18px;border-radius:18px;border:none;cursor:pointer;
+  font-family:inherit;font-size:1.25em;font-weight:900;color:#04121e;
+  background:linear-gradient(135deg,#00d4ff,#7cf6c4);box-shadow:0 10px 30px rgba(0,180,255,.35)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22);box-shadow:none;
+  font-size:1.05em;padding:14px}
 
-.card{margin-top:16px;padding:18px 16px;border-radius:22px;
-  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);
-  box-shadow:0 12px 34px rgba(0,0,0,.35);overflow:hidden}
-.card.done{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.06)}
-.card.bmw{border-color:rgba(90,170,255,.45);background:linear-gradient(150deg,rgba(20,80,180,.22),rgba(255,255,255,.05))}
-.card.game{border-color:rgba(120,255,150,.35);background:linear-gradient(150deg,rgba(40,200,110,.16),rgba(255,255,255,.04))}
+/* reward strip */
+.reward{margin-top:18px;padding:15px 16px;border-radius:16px;line-height:1.6;font-size:1.04em;
+  background:rgba(0,0,0,.34);border-left:4px solid #ffd34d;color:#e7f3ff}
+.reward b{color:#ffd34d}
 
-.shot{width:100%;border-radius:16px;display:block;margin-bottom:14px;
-  border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 26px rgba(0,0,0,.45);background:#0d1220}
-.duo{display:flex;gap:8px;margin-bottom:14px}
-.duo figure{flex:1;position:relative}
-.duo img{width:100%;height:130px;object-fit:cover;border-radius:14px;display:block;
-  border:1px solid rgba(255,255,255,.16)}
-.duo figcaption{position:absolute;top:7px;right:8px;background:rgba(0,0,0,.72);
-  padding:3px 10px;border-radius:99px;font-size:.82em;font-weight:900;color:#fff}
+/* ---- L1 start lights ---- */
+#lights{display:flex;gap:10px;justify-content:center;margin:10px 0 4px}
+.lamp{width:44px;height:44px;border-radius:50%;background:#2a0d12;border:2px solid rgba(255,255,255,.12)}
+.lamp.on{background:radial-gradient(circle at 35% 30%,#ff6b6b,#d90429);box-shadow:0 0 22px rgba(255,40,60,.85)}
+#tapzone{flex:1;min-height:170px;margin-top:14px;border-radius:22px;display:grid;place-items:center;
+  border:2px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.05);
+  font-size:1.4em;font-weight:900;color:#cfe3f5;text-align:center;padding:12px}
+#tapzone.go{border-style:solid;border-color:#3ddc84;background:rgba(60,220,132,.22);color:#fff}
 
-.q{font-size:1.25em;font-weight:800;line-height:1.45;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start}
-.n{flex:none;min-width:36px;height:36px;border-radius:12px;display:grid;place-items:center;
-  background:rgba(0,212,255,.2);color:#8fe6ff;font-size:.7em;font-weight:900}
-.card.bmw .n{background:rgba(90,170,255,.3);color:#cfe6ff}
-.card.game .n{background:rgba(120,255,150,.22);color:#a8ffc4}
+/* ---- L2 rev ---- */
+.bar{height:26px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#00d4ff,#ffd34d,#ff4d6d)}
+.lane{position:relative;height:56px;margin-top:10px;border-radius:14px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);overflow:hidden}
+.lane .who{position:absolute;left:8px;top:6px;font-size:.8em;color:#9fb8cc;font-weight:800}
+.lane .car{position:absolute;bottom:6px;font-size:1.9em;left:0;transition:left .1s linear}
+.lane .fin{position:absolute;right:6px;top:0;bottom:0;width:5px;
+  background:repeating-linear-gradient(180deg,#fff 0 7px,#111 7px 14px)}
+#mash{margin-top:14px;padding:26px;border-radius:22px;border:none;width:100%;cursor:pointer;
+  font-family:inherit;font-size:1.5em;font-weight:900;color:#04121e;
+  background:linear-gradient(135deg,#ffd34d,#ff8c42);box-shadow:0 10px 30px rgba(255,160,60,.35)}
+#mash:active{transform:scale(.96)}
 
-.opts{display:flex;flex-direction:column;gap:10px}
-button.opt{width:100%;text-align:left;padding:15px 16px;border-radius:15px;cursor:pointer;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
-  color:#fff;font-size:1.06em;font-weight:600;font-family:inherit;
-  transition:transform .12s, background .2s, border-color .2s}
-button.opt:active{transform:scale(.97)}
-button.opt:hover{background:rgba(255,255,255,.12)}
-button.opt.right{background:rgba(60,220,140,.24);border-color:rgba(60,220,140,.65)}
-button.opt.wrong{background:rgba(255,70,90,.18);border-color:rgba(255,70,90,.5)}
-button.opt.dim{opacity:.32}
-button.opt.pick{background:rgba(0,212,255,.2);border-color:rgba(0,212,255,.6)}
-button.opt[disabled]{cursor:default}
+/* ---- L3 zoom ---- */
+#crop{width:100%;height:150px;border-radius:18px;border:2px solid rgba(255,255,255,.25);
+  background-repeat:no-repeat;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+#picks{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+#picks button{padding:0;border:2px solid rgba(255,255,255,.18);border-radius:14px;overflow:hidden;
+  background:#0d1220;cursor:pointer;aspect-ratio:4/3}
+#picks img{width:100%;height:100%;object-fit:cover;display:block}
+#picks button.right{border-color:#3ddc84;box-shadow:0 0 22px rgba(60,220,132,.6)}
+#picks button.wrong{border-color:#ff4d6d;opacity:.5}
 
-.reveal{display:none;margin-top:14px;padding:15px 16px;border-radius:15px;
-  background:rgba(0,0,0,.34);border-left:4px solid #00d4ff;line-height:1.7;font-size:1.04em;color:#dcefff}
-.reveal.on{display:block;animation:in .4s ease-out}
-.reveal b{color:#ffd34d}
-.hit{font-weight:900;font-size:1.06em;display:block;margin-bottom:5px}
-.hit.good{color:#5ff0a8}
-.hit.miss{color:#ffb3c0}
+/* ---- L4 pit stop ---- */
+#pit{position:relative;flex:1;min-height:230px;margin-top:12px;border-radius:22px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);overflow:hidden}
+#pit .body{position:absolute;left:16%;right:16%;top:32%;bottom:32%;border-radius:16px;
+  background:linear-gradient(160deg,#1b3a6b,#0e6bbd);box-shadow:inset 0 2px 0 rgba(255,255,255,.2)}
+.wheel{position:absolute;width:64px;height:64px;border-radius:50%;cursor:pointer;
+  background:radial-gradient(circle at 40% 35%,#4a4a52,#15151a 70%);
+  border:3px solid #2b2b33;display:grid;place-items:center;font-size:1.5em}
+.wheel.hot{border-color:#ffd34d;box-shadow:0 0 24px rgba(255,211,77,.85);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.09)}}
+.wheel.ok{background:radial-gradient(circle at 40% 35%,#3ddc84,#137a45);border-color:#3ddc84;animation:none}
 
-.roundel{display:block;margin:0 auto 14px;filter:drop-shadow(0 8px 20px rgba(0,120,255,.45))}
+/* ---- L5 needle ---- */
+#gaugewrap{position:relative;width:100%;max-width:300px;margin:6px auto 0}
+#gaugewrap svg{width:100%;display:block;overflow:visible}
 
-#final{display:none;margin-top:26px;padding:30px 20px;border-radius:26px;text-align:center;
-  background:linear-gradient(160deg,rgba(0,212,255,.16),rgba(255,77,109,.12));
-  border:1px solid rgba(255,255,255,.2);animation:in .7s ease-out}
-#final .rank{font-size:2.4em;font-weight:900;line-height:1.15;margin:10px 0 6px;
-  background:linear-gradient(120deg,#00d4ff,#fff,#ffd34d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-#final p{color:#cfe3f5;line-height:1.7;font-size:1.06em}
-.games{margin-top:24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.16)}
-.games h3{font-size:1.3em;margin-bottom:6px}
-.games .why{color:#9fb8cc;font-size:.95em;margin-bottom:14px}
-a.game{display:block;margin-top:10px;padding:16px;border-radius:16px;text-decoration:none;color:#fff;
-  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);font-weight:800;font-size:1.08em;
-  transition:transform .12s, background .2s}
+/* ---- L6 dodge ---- */
+#road{position:relative;flex:1;min-height:260px;margin-top:10px;border-radius:20px;overflow:hidden;
+  background:linear-gradient(180deg,#11172b,#0a0e1c);border:1px solid rgba(255,255,255,.12)}
+.divider{position:absolute;top:0;bottom:0;width:3px;background:repeating-linear-gradient(180deg,rgba(255,255,255,.5) 0 22px,transparent 22px 46px)}
+#hero{position:absolute;bottom:12px;font-size:2.2em;transition:left .11s ease-out;z-index:2}
+.cone{position:absolute;font-size:1.9em;z-index:1}
+#steer{display:flex;gap:10px;margin-top:10px}
+#steer button{flex:1;padding:20px;border-radius:18px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.1);color:#fff;font-size:1.8em;cursor:pointer;font-family:inherit}
+#steer button:active{background:rgba(255,255,255,.24)}
+#dodgehud{display:flex;justify-content:space-between;font-weight:900;color:#8fe6ff;margin-top:8px;font-size:1.05em}
+
+/* ---- final ---- */
+.rank{font-size:2.2em;font-weight:900;text-align:center;line-height:1.15;
+  background:linear-gradient(120deg,#00d4ff,#fff,#ffd34d);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+a.game{display:block;margin-top:10px;padding:15px;border-radius:16px;text-decoration:none;color:#fff;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);font-weight:800;font-size:1.06em}
+a.game small{display:block;font-weight:500;font-size:.8em;color:#a9c6e0;margin-top:3px}
 a.game:active{transform:scale(.97)}
-a.game:hover{background:rgba(255,255,255,.16)}
-a.game small{display:block;font-weight:500;font-size:.8em;color:#a9c6e0;margin-top:4px}
-.again{margin-top:20px;padding:13px 26px;border-radius:99px;border:1px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.1);color:#fff;font-weight:800;font-size:1em;font-family:inherit;cursor:pointer}
-.foot{text-align:center;color:rgba(255,255,255,.28);font-size:.85em;margin-top:26px;line-height:1.6}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.foot{text-align:center;color:rgba(255,255,255,.3);font-size:.82em;margin-top:14px;line-height:1.6}
 </style>
 </head>
 <body>
-
-<div class="road" id="road"></div>
-
-<div class="wrap">
-
-  <div class="hero">
-    <div class="emo">🏎️💨</div>
-    <h1>TAL</h1>
-    <div class="sub">Monster Mode: <b>ON</b>.<br>
-      <span id="hcount">15</span> cards. Cars, speed and BMW.<br>
-      You don't need to know anything. Just guess. 😎</div>
-    <div class="tag">⚡ Let's see what you've got</div>
+<div id="app">
+  <div id="top">
+    <div id="dots"></div>
+    <div id="score">0</div>
   </div>
-
-  <div class="scorebar">
-    <div class="pts" id="pts">0 pts</div>
-    <div class="gauge"><i id="gauge"></i></div>
-    <div class="pts" id="cnt" style="color:#8fe6ff">0/15</div>
-  </div>
-
-  <div id="cards"></div>
-
-  <div id="final">
-    <div style="font-size:3em">🏁</div>
-    <div class="rank" id="rank"></div>
-    <p id="rankmsg"></p>
-    <p style="margin-top:18px">Dad told me to tell you this:<br>
-      <b style="color:#ffd34d">"You now know more about cars than almost anyone in your class. Go tell them."</b></p>
-
-    <div class="games">
-      <h3>🎮 Now go drive one</h3>
-      <div class="why">Free. No download. Works on the phone.</div>
-      <a class="game" href="https://slowroads.io/" target="_blank" rel="noopener">
-        🛣️ Slow Roads
-        <small>Endless roads, mountains, deserts, snow. Just drive forever. Very chill.</small>
-      </a>
-      <a class="game" href="https://smashkarts.io/" target="_blank" rel="noopener">
-        💥 Smash Karts
-        <small>Go-karts + rockets, against real players. Like Mario Kart 🍄 in the browser.</small>
-      </a>
-    </div>
-
-    <button class="again" onclick="location.reload()">🔄 Play again</button>
-  </div>
-
-  <div class="foot">Made just for Tal 🏎️<br>נבנה במיוחד בשבילך</div>
+  <div id="stage"></div>
 </div>
 
 <script>
-(function(){
-  const r=document.getElementById('road');
-  for(let i=0;i<14;i++){
+const $=(s,r)=>(r||document).querySelector(s);
+const el=(h)=>{const d=document.createElement('div');d.innerHTML=h.trim();return d.firstElementChild;};
+const CARS=['m4','chiron','lambo','porsche','ferrari','jesko','m5','rolls','tesla','isetta','monster','f1'];
+let total=0, idx=0;
+
+/* preload so nothing pops in late */
+CARS.forEach(c=>{const i=new Image();i.src='img/'+c+'.jpg';});
+
+function setScore(){ $('#score').textContent=total; }
+function drawDots(){
+  const d=$('#dots'); d.innerHTML='';
+  for(let i=0;i<LEVELS.length;i++){
     const s=document.createElement('div');
-    s.className='stripe';
-    s.style.left=(Math.random()*100)+'%';
-    s.style.animationDuration=(1.1+Math.random()*2.2)+'s';
-    s.style.animationDelay=(-Math.random()*3)+'s';
-    r.appendChild(s);
+    s.className='dot'+(i<idx?' on':(i===idx?' cur':''));
+    d.appendChild(s);
   }
-})();
+}
+function show(node){ const st=$('#stage'); st.innerHTML=''; node.classList.add('screen'); st.appendChild(node); }
+function award(p){ total+=p; setScore(); }
 
-const BMW_SVG = '<svg class="roundel" width="120" height="120" viewBox="0 0 100 100">'+
-  '<circle cx="50" cy="50" r="48" fill="#0b0b0b"/>'+
-  '<circle cx="50" cy="50" r="37" fill="#fff"/>'+
-  '<path d="M50 13 A37 37 0 0 1 87 50 L50 50 Z" fill="#0e6bbd"/>'+
-  '<path d="M50 87 A37 37 0 0 1 13 50 L50 50 Z" fill="#0e6bbd"/>'+
-  '<circle cx="50" cy="50" r="37" fill="none" stroke="#0b0b0b" stroke-width="2"/>'+
-  '</svg>';
-
-/* ------------- CONTENT -------------
-   type: quiz  = one right answer (10 pts right / 3 pts wrong)
-         pick  = no wrong answer (5 pts)
-         fact  = just read it (5 pts)
--------------------------------------- */
-const ITEMS = [
-
-{t:'quiz', icon:'1', bmw:true, img:'img/isetta.jpg',
- q:'This is a real BMW from 1955. How do you get inside?',
- opts:['Normal door on the side','The WHOLE FRONT opens like a fridge','Through the roof'], correct:1,
- exp:'<b>The whole front opens.</b> Steering wheel and all - it swings out and you walk straight in. It is called the <b>Isetta</b>. And here is the crazy part: in the 1950s BMW was almost out of money, and this funny little egg saved the whole company. Without it, no BMW today.'},
-
-{t:'quiz', icon:'2', img:'img/chiron.jpg',
- q:'This is a Bugatti Chiron. How fast can it go?',
- opts:['120 km/h - like on the highway','250 km/h','420 km/h'], correct:2,
- exp:'<b>420 km/h.</b> And they had to <b>slow it down</b> on purpose - the tires would fall apart if it went any faster. Fun problem to have. 😅'},
-
-{t:'fact', icon:'⛏️',
- q:'Minecraft check',
- body:'In Minecraft, one block is <b>1 meter</b>. A minecart moves about <b>8 blocks per second.</b><br><br>The Bugatti at top speed? <b>117 blocks per second.</b><br><br>That means the Bugatti crosses a 100-block Minecraft world <b>in less than one second.</b> Your minecart would still be leaving the station.'},
-
-{t:'quiz', icon:'3', bmw:true, svg:true,
- q:'You see this logo everywhere. What is it actually a picture of?',
- opts:['A spinning airplane propeller','A flag - blue and white','A steering wheel'], correct:1,
- exp:'<b>A flag.</b> It is the flag of <b>Bavaria</b>, the part of Germany where BMW was born.<br><br>But almost everyone on Earth thinks it is a propeller - because BMW put that idea in an ad in <b>1929</b> and never corrected it. They finally admitted the truth in <b>2020</b>.<br><br><b>So you now know something most adults get wrong.</b> Try it on someone. 😏'},
-
-{t:'quiz', icon:'4', img:'img/monster.jpg',
- q:'A monster truck wheel. How tall is one wheel?',
- opts:['Up to your knee','Taller than you','Taller than a house'], correct:1,
- exp:'<b>Taller than you.</b> One wheel is about <b>1.7 meters</b> - that is taller than most grown-ups. The whole truck weighs as much as <b>5 normal cars</b>, and it still jumps.'},
-
-{t:'quiz', icon:'5', img:'img/f1.jpg',
- q:'A Formula 1 car. If you built a tunnel and turned it upside down, could it drive on the ceiling?',
- opts:['No way, it would fall','Yes - it sticks to the ceiling'], correct:1,
- exp:'<b>Yes. For real.</b> 🤯<br><br>The wings on an F1 car work backwards from an airplane. A plane wing pushes UP. These wings push <b>DOWN</b> - so hard that the car gets pressed onto the road stronger than its own weight.<br><br>Go fast enough, and up or down stops mattering. The word for it is <b>downforce</b>. Remember that word, it sounds cool.'},
-
-{t:'compare', icon:'6', imgA:'img/ferrari.jpg', imgB:'img/tesla.jpg', labelA:'A', labelB:'B',
- q:'RACE! Red Ferrari vs boring blue family car. Who wins off the line?',
- opts:['A - the Ferrari, obviously','B - the boring blue one'], correct:1,
- exp:'<b>B wins.</b> 🤫<br><br>That "boring" blue car is electric, and electric motors give you <b>all</b> the power the instant you touch the pedal - no waiting. It hits 100 km/h in about <b>2 seconds.</b><br><br>Lesson: <b>never judge a car by its face.</b>'},
-
-{t:'pick', icon:'🎨', img:'img/m4.jpg',
- q:'This BMW M4 is yours now. Pick the color.',
- opts:['🟦 Glowing neon blue','⚫ Full matte black','🟩 Bright green','🟧 Orange fire','🤍 White with racing stripes'],
- exp:'Good call. And a real thing: at the BMW factory you can order <b>any color that exists in the world</b> - even one that is not in the catalog. You pay extra, and they mix it just for you.'},
-
-{t:'quiz', icon:'7', img:'img/lambo.jpg',
- q:'A Lamborghini. Its doors do not open sideways. What do they do?',
- opts:['They slide back','They lift straight UP','They fall off'], correct:1,
- exp:'<b>Straight up</b> - like scissors. ✂️<br><br>Funny part: they did NOT do it to look cool. The old Lamborghini was so wide and so low that a normal door would smash into the car parked next to it. So they made it go up instead. An annoying problem turned into the coolest thing about the car.'},
-
-{t:'fact', icon:'🍄',
- q:'Mario Kart is real',
- body:'In Mario Kart you grab a mushroom and get a speed boost. 🍄<br><br>Real race cars have that button too. In Formula 1 it is called <b>DRS</b>: when you get close behind another car, you press a button, a flap on your wing opens, and you go faster to overtake.<br><br>You can only use it in certain places on the track - <b>exactly like the boost strips on a Mario Kart map.</b> Somebody was definitely paying attention.'},
-
-{t:'quiz', icon:'8', img:'img/porsche.jpg',
- q:'A Porsche 911. Where is the engine?',
- opts:['In the front, like every car','In the middle, under the seats','In the BACK, behind everything'], correct:2,
- exp:'<b>In the back.</b> Behind the rear wheels, which every engineer says is the wrong place to put it.<br><br>Porsche has been doing it wrong <b>since 1963</b> and refuses to stop - because they got so good at it that the "wrong" car now beats the right ones.'},
-
-{t:'quiz', icon:'9', bmw:true, img:'img/rolls.jpg',
- q:'The fanciest car in the world - a Rolls-Royce. Who owns the company that makes it?',
- opts:['Ferrari','BMW','Nobody, the King owns it'], correct:1,
- exp:'<b>BMW.</b> 👑<br><br>And it gets better: BMW <b>also</b> owns Mini - the tiny cute one. So the biggest, fanciest car in the world and one of the smallest come from the exact same company.'},
-
-{t:'quiz', icon:'10', img:'img/jesko.jpg',
- q:'This is a Koenigsegg. Only a few exist. How much does one cost?',
- opts:['Like a nice bicycle','Like a house','Like about 10 houses'], correct:2,
- exp:'<b>About 10 houses.</b> Roughly <b>3 million dollars.</b> 💸<br><br>And they only build a handful of them - so even if you have the money, you might not get one. Its top speed is supposed to be around <b>500 km/h</b>, but nobody has taken it all the way yet. Someone will.'},
-
-{t:'fact', icon:'⚡',
- q:'2 seconds',
- body:'A Formula 1 tire lasts about <b>100 km</b> and then it is garbage. So they change tires in the middle of the race.<br><br>How long to change all four? <b>About 2 seconds.</b><br><br>It takes around <b>20 people</b>, each one with exactly one job, practicing it hundreds of times. Blink slowly and you missed the whole thing.'},
-
-{t:'pick', icon:'⚔️', img:'img/m5.jpg',
- q:'One car. It has to be yours forever. Pick.',
- opts:['🔵 BMW M5 - looks normal, is not normal','🔴 Ferrari - loud and red','🟡 Lamborghini - the spaceship','🚚 Monster truck - jump over everything'],
- exp:'No wrong answer here. But about that BMW M5: it looks like a normal car a dad drives to work, and it will destroy actual sports cars at a green light. There is a name for that - <b>a wolf in sheep\'s clothing.</b> 🐺'},
-
-{t:'pick', icon:'🔑',
- q:'Last one, and it is the real question. You have the keys. What do you do?',
- opts:['🏎️ Race track. Full speed.','🛣️ Long road trip with music','🏙️ Drive around town so everyone sees','🔧 Open the hood and figure out how it works'],
- exp:'Good answer.<br><br>And a small secret: <b>every single person who ever built a monster car started as a kid who wanted to know how it works.</b> Same as you, right now. 🏁'}
-];
-
-/* ------------- RENDER ------------- */
-const box=document.getElementById('cards');
-let score=0, answered=0;
-const TOTAL=ITEMS.length;
-const MAX=ITEMS.reduce((a,it)=>a+((it.t==='quiz'||it.t==='compare')?10:5),0);
-document.getElementById('cnt').textContent='0/'+TOTAL;
-document.getElementById('hcount').textContent=TOTAL;
-
-ITEMS.forEach((it,i)=>{
-  const c=document.createElement('div');
-  c.className='card'+(it.bmw?' bmw':'');
-  c.id='c'+i;
-  let h='';
-
-  if(it.svg) h+=BMW_SVG;
-  if(it.img) h+='<img class="shot" src="'+it.img+'" alt="" loading="lazy">';
-  if(it.t==='compare'){
-    h+='<div class="duo">'+
-       '<figure><img src="'+it.imgA+'" alt="" loading="lazy"><figcaption>'+it.labelA+'</figcaption></figure>'+
-       '<figure><img src="'+it.imgB+'" alt="" loading="lazy"><figcaption>'+it.labelB+'</figcaption></figure>'+
-       '</div>';
-  }
-
-  h+='<div class="q"><span class="n">'+it.icon+'</span><span>'+it.q+'</span></div>';
-
-  if(it.t==='fact'){
-    h+='<div class="reveal on" style="margin-top:0">'+it.body+'</div>';
-    h+='<div class="opts" style="margin-top:12px"><button class="opt" onclick="gotIt('+i+',this)">✅ Got it, next</button></div>';
-  } else {
-    h+='<div class="opts">';
-    it.opts.forEach((o,j)=>{ h+='<button class="opt" onclick="pick('+i+','+j+',this)">'+o+'</button>'; });
-    h+='</div><div class="reveal" id="r'+i+'"></div>';
-  }
-  c.innerHTML=h;
-  box.appendChild(c);
-});
-
-function bump(p){
-  score+=p; answered++;
-  document.getElementById('pts').textContent=score+' pts';
-  document.getElementById('cnt').textContent=answered+'/'+TOTAL;
-  document.getElementById('gauge').style.width=Math.round(answered/TOTAL*100)+'%';
-  if(answered===TOTAL) setTimeout(showFinal,600);
+/* result screen shared by every level */
+function result(title,bigTxt,mini,rewardHtml,pts){
+  award(pts);
+  const n=el('<div><div style="font-size:2.6em;text-align:center">'+title+'</div>'+
+    '<div class="big" style="margin-top:6px">'+bigTxt+'</div>'+
+    (mini?'<div class="mini">'+mini+'</div>':'')+
+    '<div class="reward">'+rewardHtml+'</div>'+
+    '<button class="btn">NEXT ▸</button></div>');
+  $('.btn',n).onclick=()=>{ idx++; runLevel(); };
+  show(n);
 }
 
-function gotIt(i,btn){
-  const c=document.getElementById('c'+i);
-  if(c.classList.contains('done')) return;
-  c.classList.add('done');
-  btn.classList.add('pick'); btn.disabled=true; btn.textContent='✅ Got it';
-  bump(5); next(i);
+/* ============ LEVEL 1 - START LIGHTS ============ */
+function lvlLights(){
+  const n=el('<div>'+
+    '<h2>🚦 START LIGHTS</h2>'+
+    '<div class="lead">Five red lights come on.<br>The moment they go OUT - <b>TAP.</b></div>'+
+    '<div id="lights"></div>'+
+    '<div id="tapzone">Wait for it...</div>'+
+    '</div>');
+  show(n);
+  const lz=$('#lights',n), tz=$('#tapzone',n);
+  const lamps=[];
+  for(let i=0;i<5;i++){const l=document.createElement('div');l.className='lamp';lz.appendChild(l);lamps.push(l);}
+
+  let t0=0, armed=false, dead=false;
+  lamps.forEach((l,i)=>setTimeout(()=>{ if(!dead) l.classList.add('on'); }, 700+i*550));
+  const outAt=700+5*550+900+Math.random()*2000;
+  const timer=setTimeout(()=>{
+    if(dead) return;
+    lamps.forEach(l=>l.classList.remove('on'));
+    tz.classList.add('go'); tz.textContent='TAP NOW!';
+    armed=true; t0=performance.now();
+  },outAt);
+
+  tz.onclick=()=>{
+    if(dead) return;
+    if(!armed){ // jump start
+      dead=true; clearTimeout(timer);
+      result('🚨','JUMP START','You tapped before the lights went out.',
+        'In a real race that is a <b>5 second penalty</b> - they make you sit and wait while everyone drives away. Ouch.',20);
+      return;
+    }
+    dead=true;
+    const ms=Math.round(performance.now()-t0);
+    let msg,pts;
+    if(ms<200){ msg='That is <b>faster than a Formula 1 driver.</b> Real ones average about 200ms. Are you human?'; pts=100; }
+    else if(ms<300){ msg='An F1 driver reacts in about <b>200ms</b>. You are right there with them. 🔥'; pts=85; }
+    else if(ms<450){ msg='Solid. An F1 driver does about <b>200ms</b>, a normal adult about <b>350ms</b>. You beat the adult.'; pts=65; }
+    else { msg='F1 drivers do this in about <b>200ms</b>. They also practice it thousands of times. Try again later.'; pts=40; }
+    result('⚡',ms+' ms',(ms/1000).toFixed(3)+' seconds',msg,pts);
+  };
 }
 
-function pick(i,j,btn){
-  const it=ITEMS[i], c=document.getElementById('c'+i);
-  if(c.classList.contains('done')) return;
-  c.classList.add('done');
-  const btns=c.querySelectorAll('button.opt');
-  btns.forEach(b=>b.disabled=true);
-  const rev=document.getElementById('r'+i);
+/* ============ LEVEL 2 - REV IT (mash) ============ */
+function lvlRev(){
+  const n=el('<div>'+
+    '<h2>🏁 DRAG RACE</h2>'+
+    '<div class="lead">Tap the pedal <b>as fast as you can</b> for 6 seconds.<br>Beat the Bugatti.</div>'+
+    '<div class="lane"><span class="who">YOU</span><span class="car" id="me">🏎️</span><span class="fin"></span></div>'+
+    '<div class="lane"><span class="who">BUGATTI</span><span class="car" id="rival">🚗</span><span class="fin"></span></div>'+
+    '<div class="bar"><i id="rpm"></i></div>'+
+    '<button id="mash">GO! 👊</button>'+
+    '</div>');
+  show(n);
+  const me=$('#me',n), rival=$('#rival',n), rpm=$('#rpm',n), btn=$('#mash',n);
+  let taps=0, started=false, t0=0;
+  const DUR=6000, NEED=60;   // 60 taps = dead heat with the Bugatti
 
-  if(it.t==='pick'){
-    btn.classList.add('pick');
-    btns.forEach(b=>{ if(b!==btn) b.classList.add('dim'); });
-    rev.innerHTML='<span class="hit good">🔥 Solid choice</span>'+it.exp;
-    rev.classList.add('on');
-    bump(5);
-  } else {
-    const ok=(j===it.correct);
-    btns.forEach((b,k)=>{
-      if(k===it.correct) b.classList.add('right');
-      else if(k===j) b.classList.add('wrong');
-      else b.classList.add('dim');
+  btn.onclick=()=>{
+    if(!started){
+      started=true; t0=performance.now(); btn.textContent='FASTER! 👊';
+      const iv=setInterval(()=>{
+        const p=Math.min(1,(performance.now()-t0)/DUR);
+        rival.style.left=(p*88)+'%';
+        me.style.left=(Math.min(1,taps/NEED)*88)+'%';
+        rpm.style.width=Math.min(100,(taps/NEED)*100)+'%';
+        if(p>=1){
+          clearInterval(iv); btn.disabled=true; btn.textContent='...';
+          const won=taps>=NEED;
+          const kmh=Math.round(taps/NEED*420);
+          result(won?'🏆':'🚗',taps+' taps',kmh+' km/h reached',
+            won?'You beat it. For reference, a real Bugatti hits <b>420 km/h</b> - and they had to <b>slow it down on purpose</b>, because the tires would fly apart any faster.'
+                :'The Bugatti got you. It does <b>420 km/h</b> - and that is already limited on purpose, or the tires would come apart. Rematch?',
+            won?100:Math.max(35,Math.round(taps/NEED*80)));
+        }
+      },50);
+    }
+    taps++;
+  };
+}
+
+/* ============ LEVEL 3 - ZOOM ============ */
+function lvlZoom(){
+  const rounds=4; let r=0, got=0;
+  const pool=CARS.slice();
+  function round(){
+    const pick=[];
+    while(pick.length<3){
+      const c=pool[Math.floor(Math.random()*pool.length)];
+      if(!pick.includes(c)) pick.push(c);
+    }
+    const ans=pick[Math.floor(Math.random()*3)];
+    const zx=15+Math.random()*70, zy=15+Math.random()*70;
+
+    const n=el('<div>'+
+      '<h2>🔍 EXTREME ZOOM</h2>'+
+      '<div class="lead">Which car is this a close-up of?</div>'+
+      '<div id="crop"></div>'+
+      '<div id="picks"></div>'+
+      '<div class="mini">Round '+(r+1)+' of '+rounds+'</div>'+
+      '</div>');
+    show(n);
+    const crop=$('#crop',n);
+    crop.style.backgroundImage="url('img/"+ans+".jpg')";
+    crop.style.backgroundSize='420%';
+    crop.style.backgroundPosition=zx+'% '+zy+'%';
+
+    const ps=$('#picks',n);
+    pick.forEach(c=>{
+      const b=document.createElement('button');
+      b.innerHTML='<img src="img/'+c+'.jpg" alt="">';
+      b.onclick=()=>{
+        [...ps.children].forEach(x=>x.onclick=null);
+        const ok=(c===ans);
+        b.classList.add(ok?'right':'wrong');
+        if(!ok){ [...ps.children].forEach((x,i)=>{ if(pick[i]===ans) x.classList.add('right'); }); }
+        if(ok) got++;
+        crop.style.transition='background-size .5s';
+        crop.style.backgroundSize='100%';
+        crop.style.backgroundPosition='center';
+        setTimeout(()=>{ r++; r<rounds?round():done(); },900);
+      };
+      ps.appendChild(b);
     });
-    rev.innerHTML='<span class="hit '+(ok?'good':'miss')+'">'+
-      (ok?'🎯 Nailed it.':'😎 Nope - but now you know.')+'</span>'+it.exp;
-    rev.classList.add('on');
-    bump(ok?10:3);
   }
-  next(i);
+  function done(){
+    result(got===rounds?'👁️':'🔍',got+' / '+rounds,'sharp eyes',
+      got===rounds?'Perfect. Real car spotters do this from a moving car, at night, from the shape of one headlight.'
+                  :'Car people can name a car from <b>one headlight</b> at night. It is just practice - your eyes learn the shapes.',
+      got*25);
+  }
+  round();
 }
 
-function next(i){
-  setTimeout(()=>{
-    const n=document.getElementById('c'+(i+1));
-    if(n) n.scrollIntoView({behavior:'smooth',block:'center'});
-  },450);
+/* ============ LEVEL 4 - PIT STOP ============ */
+function lvlPit(){
+  const n=el('<div>'+
+    '<h2>🔧 PIT STOP</h2>'+
+    '<div class="lead">Tap each glowing wheel.<br>All four. <b>Fast.</b></div>'+
+    '<div id="pit"><div class="body"></div></div>'+
+    '</div>');
+  show(n);
+  const pit=$('#pit',n);
+  const spots=[[10,14],[10,66],[74,14],[74,66]];  // left%, top%
+  const wheels=spots.map(([l,t])=>{
+    const w=document.createElement('div');
+    w.className='wheel'; w.style.left='calc('+l+'% )'; w.style.top=t+'%';
+    w.textContent='🔩'; pit.appendChild(w); return w;
+  });
+
+  let order=[0,1,2,3].sort(()=>Math.random()-.5);
+  let k=0, t0=0;
+  function arm(){
+    if(k>=4){
+      const ms=performance.now()-t0, s=(ms/1000).toFixed(2);
+      let msg,pts;
+      if(ms<2500){ msg='Under 2.5 seconds. A real F1 crew does all four in about <b>2 seconds</b> - with <b>20 people</b>. You did it with one thumb.'; pts=100; }
+      else if(ms<4000){ msg='Nice. A real F1 crew does it in about <b>2 seconds</b> flat, using <b>20 people</b> who each have exactly one job.'; pts=75; }
+      else { msg='A real F1 crew changes all four in about <b>2 seconds.</b> Twenty people, each with one single job, practicing it hundreds of times.'; pts=50; }
+      result('🔧',s+'s','four wheels changed',msg,pts);
+      return;
+    }
+    const w=wheels[order[k]];
+    w.classList.add('hot');
+    w.onclick=()=>{
+      if(k===0) t0=performance.now();
+      w.classList.remove('hot'); w.classList.add('ok'); w.textContent='✅'; w.onclick=null;
+      k++; arm();
+    };
+  }
+  const go=el('<button class="btn">START ▸</button>');
+  n.appendChild(go);
+  go.onclick=()=>{ go.remove(); arm(); };
 }
 
-function showFinal(){
-  const f=document.getElementById('final');
-  let rank,msg;
-  if(score>=MAX*0.9){rank='🏆 WORLD CHAMPION';msg='That is not a normal score. That is the score of someone who reads about cars for fun. Respect.';}
-  else if(score>=MAX*0.75){rank='🥇 RACE DRIVER';msg='You know things most people do not. Especially the BMW logo one - try that on a grown-up and watch their face.';}
-  else if(score>=MAX*0.6){rank='🚀 MONSTER MODE';msg='Strong run. You are now carrying a pocket full of facts - drop one at dinner and see what happens.';}
-  else{rank='🔧 MECHANIC IN TRAINING';msg='You finished the whole track, and that is the part that counts. Round two is always faster - same as real racing.';}
-  document.getElementById('rank').textContent=rank;
-  document.getElementById('rankmsg').textContent=msg+' ('+score+' out of '+MAX+' points)';
-  f.style.display='block';
-  setTimeout(()=>f.scrollIntoView({behavior:'smooth',block:'start'}),200);
+/* ============ LEVEL 5 - NEEDLE ============ */
+function lvlNeedle(){
+  const n=el('<div>'+
+    '<h2>🎯 HIT 420</h2>'+
+    '<div class="lead">The needle is sweeping.<br>Tap to stop it in the <b style="color:#3ddc84">green</b>.</div>'+
+    '<div id="gaugewrap">'+
+      '<svg viewBox="0 0 200 120">'+
+        '<path d="M20 110 A80 80 0 0 1 180 110" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="16" stroke-linecap="round"/>'+
+        '<path id="zone" fill="none" stroke="#3ddc84" stroke-width="16"/>'+
+        '<line id="ndl" x1="100" y1="110" x2="100" y2="34" stroke="#ff4d6d" stroke-width="5" stroke-linecap="round"/>'+
+        '<circle cx="100" cy="110" r="9" fill="#fff"/>'+
+        '<text x="20" y="118" fill="#8fa8bf" font-size="11" font-weight="700">0</text>'+
+        '<text x="168" y="118" fill="#8fa8bf" font-size="11" font-weight="700">500</text>'+
+      '</svg>'+
+    '</div>'+
+    '<div class="big" id="kmh" style="font-size:2.4em">0</div>'+
+    '<div class="mini" id="tries">3 tries left</div>'+
+    '<button class="btn" id="stopb">STOP IT! ✋</button>'+
+    '</div>');
+  show(n);
+  const ndl=$('#ndl',n), kmh=$('#kmh',n), tries=$('#tries',n), stopb=$('#stopb',n);
+
+  // green zone = 400..440 km/h  ->  fraction of 0..500
+  const LO=400/500, HI=440/500;
+  const ang=f=>180*f; // 0..180 deg
+  const pt=(f,r)=>{const a=Math.PI*(1-f);return [100+r*Math.cos(a),110-r*Math.sin(a)];};
+  (function(){
+    const [x1,y1]=pt(LO,80),[x2,y2]=pt(HI,80);
+    $('#zone',n).setAttribute('d','M'+x1+' '+y1+' A80 80 0 0 1 '+x2+' '+y2);
+  })();
+
+  let f=0, dir=1, left=3, best=0, raf;
+  function frame(){
+    f+=dir*0.016;
+    if(f>=1){f=1;dir=-1;} if(f<=0){f=0;dir=1;}
+    ndl.setAttribute('transform','rotate('+(ang(f)-90)+' 100 110)');
+    kmh.textContent=Math.round(f*500);
+    raf=requestAnimationFrame(frame);
+  }
+  frame();
+
+  stopb.onclick=()=>{
+    cancelAnimationFrame(raf);
+    const v=Math.round(f*500);
+    const hit=(f>=LO&&f<=HI);
+    best=Math.max(best,hit?1:0);
+    left--;
+    if(hit||left===0){
+      result(hit?'🎯':'😅',v+' km/h',hit?'dead in the zone':'missed the zone',
+        hit?'420 km/h is the real top speed of a Bugatti Chiron - and it is <b>limited on purpose.</b> Let it go faster and the tires literally come apart.'
+           :'You were aiming at <b>420 km/h</b> - the real top speed of a Bugatti. And that is already limited on purpose, or the tires fly apart.',
+        hit?100:40);
+      return;
+    }
+    tries.textContent=left+' tries left';
+    kmh.textContent=v+' ✗';
+    setTimeout(()=>{ f=0;dir=1;frame(); },600);
+  };
 }
+
+/* ============ LEVEL 6 - DODGE ============ */
+function lvlDodge(){
+  const n=el('<div>'+
+    '<h2>🚧 DODGE</h2>'+
+    '<div class="lead">Steer around the cones.<br>Survive 25 seconds.</div>'+
+    '<div id="road"><div id="hero">🏎️</div></div>'+
+    '<div id="dodgehud"><span id="clock">25.0s</span><span id="speed">0 km/h</span></div>'+
+    '<div id="steer"><button id="lf">◀</button><button id="rt">▶</button></div>'+
+    '</div>');
+  show(n);
+  const road=$('#road',n), hero=$('#hero',n);
+  const clock=$('#clock',n), speedEl=$('#speed',n);
+  const LANES=3;
+  for(let i=1;i<LANES;i++){
+    const d=document.createElement('div'); d.className='divider';
+    d.style.left=(i*100/LANES)+'%'; road.appendChild(d);
+  }
+  const laneX=i=>(i*100/LANES)+(100/LANES/2)-6;
+  let lane=1, alive=true, t0=performance.now(), cones=[], spawnT=0, best=0;
+  hero.style.left=laneX(lane)+'%';
+
+  $('#lf',n).onclick=()=>{ if(alive&&lane>0){lane--;hero.style.left=laneX(lane)+'%';} };
+  $('#rt',n).onclick=()=>{ if(alive&&lane<LANES-1){lane++;hero.style.left=laneX(lane)+'%';} };
+
+  let last=performance.now();
+  function loop(now){
+    if(!alive) return;
+    const dt=Math.min(50,now-last); last=now;
+    const elapsed=(now-t0)/1000;
+    const speed=0.10+elapsed*0.011;              // % of height per ms
+    const kmh=Math.round(120+elapsed*11);
+    speedEl.textContent=kmh+' km/h';
+    clock.textContent=Math.max(0,25-elapsed).toFixed(1)+'s';
+
+    spawnT-=dt;
+    if(spawnT<=0){
+      spawnT=Math.max(340,900-elapsed*22);
+      const c=document.createElement('div');
+      c.className='cone'; c.textContent='🚧';
+      c.dataset.lane=Math.floor(Math.random()*LANES);
+      c.style.left=laneX(+c.dataset.lane)+'%';
+      c.style.top='-14%';
+      road.appendChild(c); cones.push(c);
+    }
+    const H=road.clientHeight;
+    cones.forEach(c=>{
+      const y=parseFloat(c.style.top)+speed*dt;
+      c.style.top=y+'%';
+      if(y>78&&y<95&&+c.dataset.lane===lane&&!c.dataset.hit){
+        c.dataset.hit=1; alive=false;
+        hero.textContent='💥';
+        setTimeout(()=>{
+          result('💥',elapsed.toFixed(1)+'s','at '+kmh+' km/h',
+            'You hit one. Real racers stare at where they <b>want to go</b>, never at the thing they are trying to miss - look at the cone and you drive straight into it. It is called <b>target fixation.</b>',
+            Math.round(Math.min(90,elapsed*3.4)));
+        },700);
+      }
+      if(y>110){ c.remove(); }
+    });
+    cones=cones.filter(c=>parseFloat(c.style.top)<=110);
+
+    if(elapsed>=25){
+      alive=false;
+      result('🏁','SURVIVED','25 seconds, '+kmh+' km/h',
+        'Clean run. Racers do this by staring at the <b>gap</b>, never at the obstacle - look straight at a cone and you will drive right into it. It is called <b>target fixation</b>, and it is real.',100);
+      return;
+    }
+    requestAnimationFrame(loop);
+  }
+  const go=el('<button class="btn">GO ▸</button>');
+  n.appendChild(go);
+  go.onclick=()=>{ go.remove(); t0=performance.now(); last=t0; requestAnimationFrame(loop); };
+}
+
+/* ============ INTRO + FINAL ============ */
+function intro(){
+  const bestPrev=localStorage.getItem('talBest');
+  const n=el('<div>'+
+    '<div style="font-size:3.4em;text-align:center">🏎️💨</div>'+
+    '<h1>TAL</h1>'+
+    '<div class="lead" style="margin-top:10px">6 games. All thumbs.<br>Reaction, drag race, pit stop, dodge.<br>No reading. Just go. 😎</div>'+
+    (bestPrev?'<div class="mini" style="margin-top:14px">Your record: <b style="color:#ffd34d">'+bestPrev+'</b> points</div>':'')+
+    '<button class="btn">START ▸</button>'+
+    '<div class="foot">Made just for Tal 🏎️<br>נבנה במיוחד בשבילך</div>'+
+    '</div>');
+  $('.btn',n).onclick=()=>{ idx=0; total=0; setScore(); runLevel(); };
+  show(n); drawDots();
+}
+
+function final(){
+  const best=Math.max(total,+(localStorage.getItem('talBest')||0));
+  const isNew=total>=best && total>+(localStorage.getItem('talBest')||0);
+  localStorage.setItem('talBest',best);
+  let rank;
+  if(total>=520) rank='🏆 WORLD CHAMPION';
+  else if(total>=420) rank='🥇 RACE DRIVER';
+  else if(total>=300) rank='🚀 MONSTER MODE';
+  else rank='🔧 MECHANIC IN TRAINING';
+
+  const n=el('<div class="scroll">'+
+    '<div style="font-size:3em;text-align:center">🏁</div>'+
+    '<div class="rank">'+rank+'</div>'+
+    '<div class="big" style="margin-top:8px">'+total+'</div>'+
+    '<div class="mini">'+(isNew?'🔥 NEW RECORD!':'your record: '+best)+'</div>'+
+    '<div style="margin-top:20px;font-weight:900;font-size:1.15em;text-align:center">🎮 Now go drive a real one</div>'+
+    '<div class="mini" style="margin-bottom:8px">Free. No download. Works on the phone.</div>'+
+    '<a class="game" href="https://slowroads.io/" target="_blank" rel="noopener">🛣️ Slow Roads'+
+      '<small>Endless roads, mountains, deserts, snow. Drive forever, no pressure.</small></a>'+
+    '<a class="game" href="https://smashkarts.io/" target="_blank" rel="noopener">💥 Smash Karts'+
+      '<small>Karts and rockets against real players. Mario Kart 🍄 in the browser.</small></a>'+
+    '<button class="btn ghost" style="margin-top:18px">🔄 PLAY AGAIN</button>'+
+    '<div class="foot">Made just for Tal 🏎️</div>'+
+    '</div>');
+  $('.btn',n).onclick=intro;
+  show(n);
+}
+
+/* ============ FLOW ============ */
+const LEVELS=[lvlLights,lvlRev,lvlZoom,lvlPit,lvlNeedle,lvlDodge];
+function runLevel(){
+  drawDots();
+  if(idx>=LEVELS.length){ final(); return; }
+  LEVELS[idx]();
+}
+intro();
 </script>
 </body>
 </html>
