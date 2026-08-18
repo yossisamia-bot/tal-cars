@@ -163,8 +163,11 @@ function result(title,bigTxt,mini,rewardHtml,pts){
     '<div class="big" style="margin-top:6px">'+bigTxt+'</div>'+
     (mini?'<div class="mini">'+mini+'</div>':'')+
     '<div class="reward">'+rewardHtml+'</div>'+
-    '<button class="btn">NEXT ▸</button></div>');
-  $('.btn',n).onclick=()=>{ idx++; runLevel(); };
+    '<button class="btn">NEXT ▸</button>'+
+    '<button class="btn ghost">🔄 TRY THIS ONE AGAIN</button></div>');
+  const bs=n.querySelectorAll('.btn');
+  bs[0].onclick=()=>{ idx++; runLevel(); };
+  bs[1].onclick=()=>{ total-=pts; setScore(); LEVELS[idx](); };
   show(n);
 }
 
@@ -364,8 +367,8 @@ function lvlNeedle(){
   show(n);
   const ndl=$('#ndl',n), kmh=$('#kmh',n), tries=$('#tries',n), stopb=$('#stopb',n);
 
-  // green zone = 400..440 km/h  ->  fraction of 0..500
-  const LO=400/500, HI=440/500;
+  // green zone = 390..450 km/h  ->  fraction of 0..500
+  const LO=390/500, HI=450/500;
   const ang=f=>180*f; // 0..180 deg
   const pt=(f,r)=>{const a=Math.PI*(1-f);return [100+r*Math.cos(a),110-r*Math.sin(a)];};
   (function(){
@@ -375,7 +378,7 @@ function lvlNeedle(){
 
   let f=0, dir=1, left=3, best=0, raf;
   function frame(){
-    f+=dir*0.016;
+    f+=dir*0.009;
     if(f>=1){f=1;dir=-1;} if(f<=0){f=0;dir=1;}
     ndl.setAttribute('transform','rotate('+(ang(f)-90)+' 100 110)');
     kmh.textContent=Math.round(f*500);
@@ -431,14 +434,14 @@ function lvlDodge(){
     if(!alive) return;
     const dt=Math.min(50,now-last); last=now;
     const elapsed=(now-t0)/1000;
-    const speed=0.10+elapsed*0.011;              // % of height per ms
+    const speed=0.055+elapsed*0.006;             // % of height per ms
     const kmh=Math.round(120+elapsed*11);
     speedEl.textContent=kmh+' km/h';
     clock.textContent=Math.max(0,25-elapsed).toFixed(1)+'s';
 
     spawnT-=dt;
     if(spawnT<=0){
-      spawnT=Math.max(340,900-elapsed*22);
+      spawnT=Math.max(430,1000-elapsed*24);
       const c=document.createElement('div');
       c.className='cone'; c.textContent='🚧';
       c.dataset.lane=Math.floor(Math.random()*LANES);
