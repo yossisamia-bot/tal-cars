@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>טל - מצב מפלצת 🏎️</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(900px 500px at 15% -5%, rgba(0,140,255,.20), transparent 60%),
+    radial-gradient(700px 500px at 90% 8%, rgba(255,30,60,.16), transparent 60%),
+    linear-gradient(160deg,#05070f,#0b1022 45%,#070a14);
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+  color:#fff;
+  padding:24px 14px 60px;
+  overflow-x:hidden;
+}
+
+/* road stripes in the background */
+.road{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.28;overflow:hidden}
+.stripe{position:absolute;top:-30vh;width:3px;height:22vh;background:linear-gradient(transparent,#7fd4ff,transparent);animation:zoom linear infinite}
+@keyframes zoom{to{transform:translateY(150vh)}}
+
+.wrap{position:relative;z-index:1;max-width:620px;margin:0 auto}
+
+/* ---------- hero ---------- */
+.hero{
+  text-align:center;padding:28px 20px 26px;border-radius:26px;
+  background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 24px 70px rgba(0,0,0,.6);
+  animation:in .7s ease-out;
+}
+@keyframes in{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:none}}
+.hero .emo{font-size:3em;animation:rev 1.8s ease-in-out infinite}
+@keyframes rev{0%,100%{transform:translateX(-8px) rotate(-2deg)}50%{transform:translateX(8px) rotate(2deg)}}
+h1{
+  font-size:3.4em;font-weight:900;letter-spacing:-2px;line-height:1;margin:6px 0 4px;
+  background:linear-gradient(120deg,#00d4ff,#fff 45%,#ff4d6d);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.sub{color:#a9c6e0;font-size:1.05em;line-height:1.6}
+.tag{display:inline-block;margin-top:14px;padding:8px 18px;border-radius:999px;font-weight:800;
+  background:rgba(0,212,255,.14);border:1px solid rgba(0,212,255,.4);color:#8fe6ff;font-size:.95em}
+
+/* ---------- score bar ---------- */
+.scorebar{
+  position:sticky;top:10px;z-index:5;margin:18px 0 6px;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-radius:18px;
+  background:rgba(8,14,28,.86);backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.gauge{flex:1;height:12px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.gauge i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,#00d4ff,#7cf6c4,#ffd34d,#ff4d6d);transition:width .5s cubic-bezier(.2,.9,.2,1)}
+.pts{font-weight:900;font-size:1.15em;color:#ffd34d;white-space:nowrap}
+
+/* ---------- cards ---------- */
+.card{
+  margin-top:16px;padding:20px 18px;border-radius:22px;
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);
+  box-shadow:0 12px 34px rgba(0,0,0,.35);
+}
+.card.done{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.06)}
+.card.bmw{border-color:rgba(90,170,255,.42);
+  background:linear-gradient(150deg,rgba(20,80,180,.20),rgba(255,255,255,.05))}
+.card.fact{border-color:rgba(255,211,77,.35);
+  background:linear-gradient(150deg,rgba(255,180,0,.13),rgba(255,255,255,.04))}
+
+.q{font-size:1.22em;font-weight:800;line-height:1.45;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start}
+.n{flex:none;min-width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(0,212,255,.2);color:#8fe6ff;font-size:.72em;font-weight:900}
+.card.bmw .n{background:rgba(90,170,255,.28);color:#cfe6ff}
+.card.fact .n{background:rgba(255,211,77,.22);color:#ffe08a}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+button.opt{
+  width:100%;text-align:right;padding:14px 16px;border-radius:15px;cursor:pointer;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+  color:#fff;font-size:1.05em;font-weight:600;font-family:inherit;
+  transition:transform .12s, background .2s, border-color .2s;
+}
+button.opt:active{transform:scale(.97)}
+button.opt:hover{background:rgba(255,255,255,.12)}
+button.opt.right{background:rgba(60,220,140,.22);border-color:rgba(60,220,140,.6)}
+button.opt.wrong{background:rgba(255,70,90,.18);border-color:rgba(255,70,90,.5);opacity:.85}
+button.opt.dim{opacity:.35}
+button.opt.pick{background:rgba(0,212,255,.2);border-color:rgba(0,212,255,.6)}
+button.opt[disabled]{cursor:default}
+
+.reveal{display:none;margin-top:14px;padding:14px 16px;border-radius:15px;
+  background:rgba(0,0,0,.3);border-right:4px solid #00d4ff;line-height:1.65;font-size:1.02em;color:#dcefff}
+.reveal.on{display:block;animation:in .4s ease-out}
+.reveal b{color:#ffd34d}
+.hit{font-weight:900;font-size:1.05em;display:block;margin-bottom:4px}
+.hit.good{color:#5ff0a8}
+.hit.miss{color:#ffb3c0}
+
+.factbody{line-height:1.7;font-size:1.08em;color:#f2e6c8}
+.factbody b{color:#fff}
+
+/* ---------- final ---------- */
+#final{display:none;margin-top:26px;padding:30px 22px;border-radius:26px;text-align:center;
+  background:linear-gradient(160deg,rgba(0,212,255,.16),rgba(255,77,109,.12));
+  border:1px solid rgba(255,255,255,.2);animation:in .7s ease-out}
+#final .rank{font-size:2.5em;font-weight:900;line-height:1.15;margin:10px 0 6px;
+  background:linear-gradient(120deg,#00d4ff,#fff,#ffd34d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#final p{color:#cfe3f5;line-height:1.7;font-size:1.08em}
+.again{margin-top:20px;padding:13px 26px;border-radius:99px;border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.1);color:#fff;font-weight:800;font-size:1em;font-family:inherit;cursor:pointer}
+.foot{text-align:center;color:rgba(255,255,255,.28);font-size:.85em;margin-top:26px}
+</style>
+</head>
+<body>
+
+<div class="road" id="road"></div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="emo">🏎️💨</div>
+    <h1>טל</h1>
+    <div class="sub">מצב מפלצת מופעל.<br><span id="hcount">17</span> תחנות של מכוניות, מהירות ו-BMW.<br>תענה, תגלה, תאסוף נקודות.</div>
+    <div class="tag">⚡ בוא נראה כמה אתה שווה על הכביש</div>
+  </div>
+
+  <div class="scorebar">
+    <div class="pts" id="pts">0 נק'</div>
+    <div class="gauge"><i id="gauge"></i></div>
+    <div class="pts" id="cnt" style="color:#8fe6ff">0/16</div>
+  </div>
+
+  <div id="cards"></div>
+
+  <div id="final">
+    <div style="font-size:3em">🏁</div>
+    <div class="rank" id="rank"></div>
+    <p id="rankmsg"></p>
+    <p style="margin-top:18px;font-size:1.05em">אבא אמר לי להגיד לך משהו:<br><b style="color:#ffd34d">"אתה יודע עכשיו יותר על מכוניות מ-99% מהילדים בכיתה. תלך תספר להם."</b></p>
+    <button class="again" onclick="location.reload()">🔄 סיבוב נוסף</button>
+  </div>
+
+  <div class="foot">נבנה במיוחד בשביל טל 🏎️</div>
+</div>
+
+<script>
+/* road stripes */
+(function(){
+  const r=document.getElementById('road');
+  for(let i=0;i<14;i++){
+    const s=document.createElement('div');
+    s.className='stripe';
+    s.style.left=(Math.random()*100)+'%';
+    s.style.animationDuration=(1.1+Math.random()*2.2)+'s';
+    s.style.animationDelay=(-Math.random()*3)+'s';
+    r.appendChild(s);
+  }
+})();
+
+/* ---------------- content ---------------- */
+const ITEMS = [
+
+{t:'quiz', icon:'1', bmw:false,
+ q:'המכונית הכי מהירה בעולם - כמה היא עושה?',
+ opts:['180 קמ״ש','310 קמ״ש','496 קמ״ש','1,200 קמ״ש'], correct:2,
+ exp:'<b>496 קמ״ש.</b> זה יאנגוואנג U9 Xtreme, מכונית חשמלית, שרצה 496.22 קמ״ש על מסלול בגרמניה. במהירות הזאת אתה עובר מטר וחצי כל מצמוץ. היא הורידה מהכס את הבוגאטי שיירון שהחזיקה בשיא מ-2019.'},
+
+{t:'fact', icon:'🔥',
+ q:'עובדה מטורפת #1',
+ body:'לבוגאטי שיירון יש מד-מהירות שמגיע עד 500. אבל אם תיסע במהירות המקסימלית - <b>הדלק ייגמר תוך פחות מ-10 דקות.</b> המנוע שותה יותר מ-100 ליטר לדקה. יש לה 16 בוכנות ו-4 טורבו. זו לא מכונית, זה טיל עם מושבי עור.'},
+
+{t:'quiz', icon:'2', bmw:true,
+ q:'הלוגו של BMW - העיגול הכחול-לבן. מה זה באמת?',
+ opts:['מדחף של מטוס מסתובב','דגל בוואריה (החבל בגרמניה)','הגה של מכונית'], correct:1,
+ exp:'<b>דגל בוואריה!</b> וזה הקטע הכי שווה: כל העולם חושב שזה מדחף מטוס. גם המורה שלך. אבל זה מיתוס - BMW המציאה אותו בפרסומת בשנת 1929, ורק ב-2020 היא הודתה שזה לא נכון. הצבעים הם פשוט הצבעים של החבל בוואריה שבו BMW נולדה. <b>עכשיו אתה יודע משהו שרוב המבוגרים לא יודעים.</b>'},
+
+{t:'quiz', icon:'3', bmw:true,
+ q:'BMW M3, M5, M8 - מה זה ה-M הזה?',
+ opts:['Monster','Motorsport - מחלקת המרוצים','Maximum','Munich'], correct:1,
+ exp:'<b>Motorsport.</b> זו מחלקה נפרדת בתוך BMW שלוקחת מכונית רגילה ומכניסה לה מנוע מפלצת, בלמים של מכונית מרוץ ומתלים קשיחים. אות אחת על הרכב, ואנשים כבר יודעים לזוז מהנתיב.'},
+
+{t:'pick', icon:'🎨',
+ q:'ה-BMW M4 שלך בגראז׳. איזה צבע?',
+ opts:['🟦 כחול נאון זוהר','⚫ שחור מט לגמרי','🟩 ירוק ניתוק (Isle of Man)','🟧 כתום אש','🤍 לבן עם פסי מרוץ'],
+ exp:'בחירה חזקה. תדע לך שבמפעל של BMW אפשר להזמין <b>כל צבע בעולם</b> - גם צבע שלא קיים בקטלוג. משלמים עוד, והם צובעים בדיוק את הגוון שביקשת.'},
+
+{t:'quiz', icon:'4', bmw:false,
+ q:'מכונית פורמולה 1 נוסעת מהר. מה היא יכולה לעשות במהירות גבוהה?',
+ opts:['לעוף כמו מטוס','לנסוע הפוך על התקרה של מנהרה','לצלול במים'], correct:1,
+ exp:'<b>לנסוע הפוך על התקרה.</b> הכנפיים של מכונית F1 עובדות הפוך ממטוס - במקום להרים אותה למעלה, הן דוחפות אותה למטה. בכוח כל כך חזק, שאם היה מסלול הפוך היא הייתה נדבקת לתקרה ולא נופלת. הכוח הזה נקרא <b>Downforce</b> - זכור את המילה, זו מילה של מקצוענים.'},
+
+{t:'fact', icon:'⚡',
+ q:'עובדה מטורפת #2',
+ body:'מכונית חשמלית מסוימת (רימאק נבירה) מגיעה מ-0 ל-100 קמ״ש <b>בפחות משתי שניות.</b> זה קצר יותר מהזמן שלוקח לך להגיד את המשפט הזה. האצה כזאת דוחפת אותך אחורה לתוך המושב בכוח שדומה לזה שמרגישים במטוס קרב בהמראה.'},
+
+{t:'quiz', icon:'5', bmw:true,
+ q:'הגריל הכפול הזה של BMW, שכל BMW בעולם מקבלת - איך קוראים לו?',
+ opts:['הפרפר','הכליות','העיניים','המסננת'], correct:1,
+ exp:'<b>הכליות!</b> בגרמנית: Niere. הוא הופיע לראשונה ב-1933 ומאז הוא על כל BMW שיצאה - כבר יותר מ-90 שנה. אתה יכול לזהות BMW מרחוק בלילה רק לפי הצורה הזאת, בלי לראות את הלוגו.'},
+
+{t:'quiz', icon:'6', bmw:true,
+ q:'מה BMW ייצרה לפני שהיא ייצרה מכוניות?',
+ opts:['אופניים','מנועי מטוסים','מקררים','שעונים'], correct:1,
+ exp:'<b>מנועי מטוסים.</b> BMW התחילה ב-1916 כמפעל למנועי מטוסים. השם עצמו אומר את זה: Bayerische Motoren Werke - "מפעלי המנועים של בוואריה". רק אחר כך הגיעו אופנועים, ורק אז מכוניות.'},
+
+{t:'pick', icon:'⚔️',
+ q:'קרב אחד על אחד. במי אתה בוחר?',
+ opts:['🔵 BMW M5 - זאב בחליפה','🔴 פרארי - צעקה איטלקית','🟡 למבורגיני - חייזר עם דלתות מספריים','🟢 פורשה 911 - הצפרדע שמנצחת את כולם'],
+ exp:'אין תשובה נכונה, אבל יש עובדה: <b>ה-BMW M5 היא היחידה ברשימה שאפשר להסיע בה 5 אנשים לבית ספר ואז לרסק איתה מכוניות ספורט בכביש.</b> קוראים לזה "זאב בבגדי כבשה".'},
+
+{t:'fact', icon:'🚗',
+ q:'עובדה מטורפת #3 - BMW כמעט מתה',
+ body:'בשנות ה-50 BMW הייתה על סף פשיטת רגל. מה הציל אותה? <b>מכונית קטנטנה עם דלת אחת - מקדימה.</b> קראו לה איזטה (Isetta). כדי להיכנס פותחים את כל החזית של הרכב, כולל ההגה, ונכנסים ישר פנימה. היא נראתה כמו ביצה על גלגלים, מכרה מאות אלפים - ובזכותה BMW קיימת היום.'},
+
+{t:'quiz', icon:'7', bmw:false,
+ q:'צמיג של מכונית פורמולה 1 - כמה זמן הוא מחזיק?',
+ opts:['5 שנים','שנה','כ-100 ק״מ ואז זורקים אותו','לנצח'], correct:2,
+ exp:'<b>כ-100 ק״מ.</b> צמיג F1 נשחק כל כך מהר שבמרוץ אחד מחליפים צמיגים כמה פעמים. וההחלפה עצמה? <b>פחות משתי שניות</b> לכל ארבעת הגלגלים, על ידי צוות של 20 איש שכל אחד מהם מתאמן על זה מאות פעמים.'},
+
+{t:'quiz', icon:'8', bmw:true,
+ q:'איזו חברת רכב מפורסמת שייכת ל-BMW?',
+ opts:['פרארי','רולס רויס ומיני','טסלה','טויוטה'], correct:1,
+ exp:'<b>רולס רויס ומיני.</b> כן - המכונית הכי יוקרתית בעולם (רולס רויס) והמכונית הכי קטנה וחמודה (מיני) שייכות לאותה חברה. אותם מהנדסים, שני עולמות הפוכים לגמרי.'},
+
+{t:'fact', icon:'🎨',
+ q:'עובדה מטורפת #4 - מכוניות אמנות',
+ body:'BMW לקחה מכוניות מרוץ אמיתיות ונתנה לאמנים הכי מפורסמים בעולם <b>לצבוע אותן ביד.</b> ואז - במקום לתלות אותן במוזיאון - שלחו אותן להתחרות במרוץ לה מאן, המרוץ הכי קשה בעולם. יצירת אמנות ששווה מיליונים, נוסעת 300 קמ״ש. הפרויקט נקרא BMW Art Cars והוא רץ מאז 1975.'},
+
+{t:'pick', icon:'🔊',
+ q:'מה נשמע לך יותר טוב?',
+ opts:['🔥 מנוע בנזין ששואג ומרעיד את החלונות','⚡ מנוע חשמלי שקט שקורע הכל בשקט מוחלט','🤝 שניהם - יש לי שתי מכוניות'],
+ exp:'שאלת מיליון הדולר של עולם הרכב היום. חובבי מכוניות ותיקים מתגעגעים לרעש. אבל האמת הטכנית: <b>המכוניות הכי מהירות בעולם ב-2026 הן חשמליות.</b> העתיד שקט - ומהיר בטירוף.'},
+
+{t:'quiz', icon:'9', bmw:false,
+ q:'הדלתות של למבורגיני שנפתחות למעלה - איך קוראים להן?',
+ opts:['דלתות כנף','דלתות מספריים','דלתות פרפר','דלתות רקטה'], correct:1,
+ exp:'<b>דלתות מספריים</b> (Scissor doors). הן נפתחות למעלה במקום הצידה. הסיבה המקורית לא הייתה בכלל להיראות מגניב - למבורגיני קאונטאש הייתה כל כך רחבה ונמוכה שאי אפשר היה לפתוח דלת רגילה בחניה. פתרון הנדסי שהפך לסמל.'},
+
+{t:'pick', icon:'🏁',
+ q:'שאלה אחרונה, והיא רצינית: מה אתה עושה עם המפתח?',
+ opts:['🏎️ מסלול מרוצים, גז עד הסוף','🛣️ מסע ארוך בכביש פתוח עם מוזיקה','🏙️ סיבוב בעיר שכולם יראו','🔧 פותח את המכסה ומבין איך זה עובד'],
+ exp:'תשובה טובה. וסוד קטן: <b>כל מי שבנה מכונית מפלצת אי פעם - התחיל בתור ילד שרצה לדעת איך זה עובד.</b> בדיוק כמוך עכשיו.'}
+];
+
+/* ---------------- render ---------------- */
+const box=document.getElementById('cards');
+let score=0, answered=0;
+const TOTAL=ITEMS.length;
+document.getElementById('cnt').textContent='0/'+TOTAL;
+document.getElementById('hcount').textContent=TOTAL;
+const MAX=ITEMS.reduce((a,it)=>a+(it.t==='quiz'?10:5),0);
+
+ITEMS.forEach((it,i)=>{
+  const c=document.createElement('div');
+  c.className='card'+(it.bmw?' bmw':'')+(it.t==='fact'?' fact':'');
+  c.id='c'+i;
+
+  let html='<div class="q"><span class="n">'+it.icon+'</span><span>'+it.q+'</span></div>';
+
+  if(it.t==='fact'){
+    html+='<div class="factbody">'+it.body+'</div>';
+    html+='<div class="opts" style="margin-top:14px"><button class="opt" onclick="gotIt('+i+',this)">✅ קלטתי, הלאה</button></div>';
+  } else {
+    html+='<div class="opts">';
+    it.opts.forEach((o,j)=>{
+      html+='<button class="opt" onclick="pick('+i+','+j+',this)">'+o+'</button>';
+    });
+    html+='</div><div class="reveal" id="r'+i+'"></div>';
+  }
+  c.innerHTML=html;
+  box.appendChild(c);
+});
+
+function bump(p){
+  score+=p; answered++;
+  document.getElementById('pts').textContent=score+" נק'";
+  document.getElementById('cnt').textContent=answered+'/'+TOTAL;
+  document.getElementById('gauge').style.width=Math.round(answered/TOTAL*100)+'%';
+  if(answered===TOTAL) setTimeout(showFinal,600);
+}
+
+function gotIt(i,btn){
+  const c=document.getElementById('c'+i);
+  if(c.classList.contains('done')) return;
+  c.classList.add('done');
+  btn.classList.add('pick'); btn.disabled=true; btn.textContent='✅ נקלט';
+  bump(5);
+}
+
+function pick(i,j,btn){
+  const it=ITEMS[i], c=document.getElementById('c'+i);
+  if(c.classList.contains('done')) return;
+  c.classList.add('done');
+  const btns=c.querySelectorAll('button.opt');
+  btns.forEach(b=>b.disabled=true);
+  const rev=document.getElementById('r'+i);
+
+  if(it.t==='pick'){
+    btn.classList.add('pick');
+    btns.forEach(b=>{if(b!==btn) b.classList.add('dim')});
+    rev.innerHTML='<span class="hit good">🔥 בחירה של מקצוען</span>'+it.exp;
+    rev.classList.add('on');
+    bump(5);
+  } else {
+    const ok = (j===it.correct);
+    btns.forEach((b,k)=>{
+      if(k===it.correct) b.classList.add('right');
+      else if(k===j) b.classList.add('wrong');
+      else b.classList.add('dim');
+    });
+    rev.innerHTML='<span class="hit '+(ok?'good':'miss')+'">'+
+      (ok?'🎯 בול. אתה יודע דברים.':'😎 לא נורא - עכשיו אתה יודע.')+'</span>'+it.exp;
+    rev.classList.add('on');
+    bump(ok?10:3);
+  }
+  setTimeout(()=>{
+    const nxt=document.getElementById('c'+(i+1));
+    if(nxt) nxt.scrollIntoView({behavior:'smooth',block:'center'});
+  },450);
+}
+
+function showFinal(){
+  const f=document.getElementById('final');
+  const max=MAX;
+  let rank,msg;
+  if(score>=max*0.9){rank='🏆 אלוף עולם';msg='זה לא ציון של ילד בן 8. זה ציון של מישהו שקורא על מכוניות בזמנו החופשי. מטורף.';}
+  else if(score>=max*0.76){rank='🥇 נהג מרוצים';msg='אתה יודע את הדברים שרוב האנשים לא יודעים. כולל הקטע של הלוגו של BMW - נסה את זה על מבוגר, הוא יתבלבל.';}
+  else if(score>=max*0.6){rank='🚀 מצב מפלצת';msg='התקדמת יפה מאוד. עכשיו יש לך מלא עובדות בכיס - תוציא אחת בארוחת ערב ותראה מה קורה.';}
+  else{rank='🔧 מכונאי בהכשרה';msg='עברת את כל המסלול, וזה מה שחשוב. סיבוב שני תמיד יוצא יותר טוב - בדיוק כמו במרוצים.';}
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('rankmsg').textContent=msg+' (צברת '+score+' מתוך '+max+' נקודות)';
+  f.style.display='block';
+  setTimeout(()=>f.scrollIntoView({behavior:'smooth',block:'center'}),200);
+}
+</script>
+</body>
+</html>
